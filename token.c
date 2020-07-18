@@ -146,6 +146,9 @@ TokenDesc* Scan(const char* src)
                 case '\"':
                     temp = '\"';
                     break;
+                default:
+                    temp = '\\';
+                    break;
                 }
             }
             else
@@ -170,7 +173,7 @@ TokenDesc* Scan(const char* src)
 				++src;
 				while (*src >= '0' && *src <= '9')
 				{
-
+                    
 				}
 			}
             else
