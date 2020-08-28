@@ -6,8 +6,6 @@ const begin = clock();
 print(recur(30));
 print("\nusing time = ", clock() - begin);
 
-
-
 /*
 import stdlib
 import stdio

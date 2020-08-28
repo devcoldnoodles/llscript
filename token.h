@@ -1,5 +1,6 @@
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -81,6 +82,7 @@ typedef struct TokenDesc
 	short value;
 	struct TokenDesc* next;
 	union {
+		void* p;
 		char c;
 		char* s;
 		int i;
@@ -88,5 +90,4 @@ typedef struct TokenDesc
 	} literal;
 } TokenDesc;
 
-TokenDesc* Scan(const char* src);
 #endif
