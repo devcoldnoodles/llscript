@@ -1,6 +1,13 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+typedef struct ParserError
+{
+    const char*         msg;
+    size_t              lines;
+    struct ParserError* next;
+} ParserError;
+
 typedef struct ParserDesc
 {
 

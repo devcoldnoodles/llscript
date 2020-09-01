@@ -80,6 +80,7 @@
 typedef struct TokenDesc
 {
 	short value;
+	size_t lines;
 	struct TokenDesc* next;
 	union {
 		void* p;
