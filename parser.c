@@ -1,6 +1,8 @@
 #include "parser.h"
 #include "token.h"
 
+#define _ERROR_EXPECTED_EXPRESSION "Expected expression"
+
 struct Token
 {
 #define T(SIGN, STR, PREC) SIGN,
@@ -19,7 +21,7 @@ SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ParserError* error);
 TokenDesc* CreateTokenDesc(short value, size_t lines, void* literal)
 {
     TokenDesc* temp = (TokenDesc*)malloc(sizeof(TokenDesc));
-    if(!temp)
+    if (!temp)
 		return NULL;
     temp->value = value;
     temp->lines = lines;
@@ -43,7 +45,7 @@ TokenDesc* Scan(const char* src)
         case '\r':case ' ': case '\f': case '\t': case '\v':
             break;
         case '0':
-        if(*(src + 1) == 'x')
+        if (*(src + 1) == 'x')
         {
             int integerValue = 0;
             src += 2;
@@ -226,68 +228,68 @@ TokenDesc* Scan(const char* src)
             desc = desc->next;
             break;
         case '<':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(LE, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(LE, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(RBRACKET, lines, NULL);
             desc = desc->next;
             break;
         case '>':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(GE, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(GE, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(GT, lines, NULL);
             desc = desc->next;
             break;
         case '!':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(NEQ, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(NEQ, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(NOT, lines, NULL);
             desc = desc->next;
             break;
         case '=':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(EQ, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(EQ, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(ASSIGN, lines, NULL);
             desc = desc->next;
             break;
         case '+':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_ADD, lines, NULL), ++src;
-            else if(*(src + 1) == '+')  desc->next = CreateTokenDesc(INC, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_ADD, lines, NULL), ++src;
+            else if (*(src + 1) == '+')  desc->next = CreateTokenDesc(INC, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(ADD, lines, NULL);
             desc = desc->next;
             break;
         case '-':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_SUB, lines, NULL), ++src;
-            else if(*(src + 1) == '-')  desc->next = CreateTokenDesc(DEC, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_SUB, lines, NULL), ++src;
+            else if (*(src + 1) == '-')  desc->next = CreateTokenDesc(DEC, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(SUB, lines, NULL);
             desc = desc->next;
             break;
         case '*':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_MUL, lines, NULL), ++src;
-            else if(*(src + 1) == '*')  desc->next = CreateTokenDesc(POW, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_MUL, lines, NULL), ++src;
+            else if (*(src + 1) == '*')  desc->next = CreateTokenDesc(POW, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(MUL, lines, NULL);
             desc = desc->next;
             break;
         case '/':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_DIV, lines, NULL), ++src, desc = desc->next;
-            else if(*(src + 1) == '*')  {src += 2; while(*(src + 1) && !(*src == '*' && *(src + 1) == '/')) ++src; src += 2;}
-            else if(*(src + 1) == '/')  {src += 2; while(*src && *src != '\n') ++src;}
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_DIV, lines, NULL), ++src, desc = desc->next;
+            else if (*(src + 1) == '*')  {src += 2; while(*(src + 1) && !(*src == '*' && *(src + 1) == '/')) ++src; src += 2;}
+            else if (*(src + 1) == '/')  {src += 2; while(*src && *src != '\n') ++src;}
             else                        desc->next = CreateTokenDesc(DIV, lines, NULL), desc = desc->next;
             break;
         case '|':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_BOR, lines, NULL), ++src;
-            else if(*(src + 1) == '*')  desc->next = CreateTokenDesc(OR, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_BOR, lines, NULL), ++src;
+            else if (*(src + 1) == '*')  desc->next = CreateTokenDesc(OR, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(BOR, lines, NULL);
             desc = desc->next;
             break;
         case '&':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_BAND, lines, NULL), ++src;
-            else if(*(src + 1) == '*')  desc->next = CreateTokenDesc(AND, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_BAND, lines, NULL), ++src;
+            else if (*(src + 1) == '*')  desc->next = CreateTokenDesc(AND, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(BAND, lines, NULL);
             desc = desc->next;
             break;
         case '^':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_BXOR, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_BXOR, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(BXOR, lines, NULL);
             desc = desc->next;
             break;
         case '%':
-            if(*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_MOD, lines, NULL), ++src;
+            if (*(src + 1) == '=')       desc->next = CreateTokenDesc(ASSIGN_MOD, lines, NULL), ++src;
             else                        desc->next = CreateTokenDesc(MOD, lines, NULL);
             desc = desc->next;
             break;
@@ -305,7 +307,7 @@ TokenDesc* Scan(const char* src)
                 mempcpy(desc->literal.s, temp, src - temp);
 				desc->literal.s[src - temp] = 0;
                 for(int seq = META; seq <= NAMESPACE; ++seq)
-                    if(!strcmp(desc->literal.s, tokens[seq].str))
+                    if (!strcmp(desc->literal.s, tokens[seq].str))
                         desc->value = tokens[seq].type;
 				continue;
 			}
@@ -320,7 +322,7 @@ TokenDesc* Scan(const char* src)
 SyntaxNode* CreateSyntaxNode(SyntaxNode* lexpr, SyntaxNode* rexpr, SyntaxNode* expr, GenerateFunc func, void* data)
 {
     SyntaxNode* temp = (SyntaxNode*)malloc(sizeof(SyntaxNode));
-    if(!temp)    return NULL;
+    if (!temp)    return NULL;
     temp->lexpr = lexpr;
     temp->rexpr = rexpr;
     temp->expr = expr;
@@ -339,7 +341,7 @@ ParserError* CreateParserError(const char* msg, size_t lines)
 
 void DeleteSyntaxNode(SyntaxNode* node)
 {
-    if(!node)   return;
+    if (!node)   return;
     DeleteSyntaxNode(node->lexpr);
     DeleteSyntaxNode(node->rexpr);
     DeleteSyntaxNode(node->expr);
@@ -357,7 +359,7 @@ SyntaxNode* ParseAssign(TokenDesc** desc, ParserError* error)
     SyntaxNode* lexpr = NULL;
     SyntaxNode* rexpr = NULL;
 
-    if(!(lexpr = ParseTernaryOperator(&temp, error)))
+    if (!(lexpr = ParseTernaryOperator(&temp, error)))
         goto ErrorHandle;
 
     short value = (**desc).value;
@@ -371,7 +373,7 @@ SyntaxNode* ParseAssign(TokenDesc** desc, ParserError* error)
     {
         if (!(rexpr = ParseAssign(&temp, error)))
         {
-            error->next = CreateParserError("Expected expression", temp->lines);
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
             error = error->next;
             goto ErrorHandle;
         }
@@ -385,8 +387,8 @@ SyntaxNode* ParseAssign(TokenDesc** desc, ParserError* error)
     *desc = temp;
     return lexpr;
 ErrorHandle:
-    if(lexpr)   DeleteSyntaxNode(lexpr);
-    if(rexpr)   DeleteSyntaxNode(rexpr);
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
     return NULL;
 }
 
@@ -398,21 +400,27 @@ SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ParserError* error)
     SyntaxNode* expr = NULL;
 
 
-    if(!(lexpr = ParseOr(&temp)))
+    if (!(lexpr = ParseLogicalOr(&temp, error)))
         goto ErrorHandle;
 
-    if(temp->value == CONDITIONAL)
+    if (temp->value == CONDITIONAL)
     {
-        if(!(expr = ParseTernaryOperator(&temp, error)))
+        if (!(expr = ParseTernaryOperator(&temp, error)))
         {
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+            error = error->next;
             goto ErrorHandle;
         }
-        if(temp->value != COLON)
+        if (temp->value != COLON)
         {
+            error->next = CreateParserError("Expected colon(:)", temp->lines);
+            error = error->next;
             goto ErrorHandle;
         }
-        if(!(rexpr = ParseTernaryOperator(&temp, error)))
+        if (!(rexpr = ParseTernaryOperator(&temp, error)))
         {
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+            error = error->next;
             goto ErrorHandle;
         }
         lexpr = CreateSyntaxNode(lexpr, rexpr, expr, SyntaxTernaryOperatorGenerateCode, NULL);
@@ -421,8 +429,61 @@ SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ParserError* error)
     *desc = temp;
     return lexpr;
 ErrorHandle:
-    if(lexpr)   DeleteSyntaxNode(lexpr);
-    if(rexpr)   DeleteSyntaxNode(rexpr);
-    if(expr)    DeleteSyntaxNode(expr);
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
+    DeleteSyntaxNode(expr);
     return NULL;
+}
+
+SyntaxNode* ParseLogicalOr(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* lexpr = NULL;
+    SyntaxNode* rexpr = NULL;
+
+    if (!(lexpr = ParseLogicalAnd(&temp, error)))
+    {
+        error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+        error = error->next;
+        goto ErrorHandle;
+    }
+
+    while (temp->value == OR)
+    {
+        if (!(rexpr = ParseLogicalAnd(&temp, error)))
+        {
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+            error = error->next;
+            goto ErrorHandle;
+        }
+        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxBinaryOperatorGenerateCode, NULL);
+    }
+
+ErrorHandle:
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
+    return NULL;
+}
+
+SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* lexpr = NULL;
+    SyntaxNode* rexpr = NULL;
+
+    if (!(lexpr = ParseCompare(&temp, error)))
+    {
+        error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+        error = error->next;
+        goto ErrorHandle;
+    }
+
+    while (temp->value == AND)
+    {
+
+    }
+
+ErrorHandle:
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
 }
