@@ -30,5 +30,11 @@ int SyntaxAssignGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxUnaryOperatorGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxBinaryOperatorGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxTernaryOperatorGenerateCode(SyntaxNode* node, ParserDesc** data);
+int SyntaxLogicalOrGenerateCode(SyntaxNode* node, ParserDesc** data);
+int SyntaxLogicalAndGenerateCode(SyntaxNode* node, ParserDesc** data);
+int SyntaxCompareGenerateCode(SyntaxNode* node, ParserDesc** deta);
+int SyntaxAddGenerateCode(SyntaxNode* node, ParserDesc** data);
+int SyntaxMulGenerateCode(SyntaxNode* node, ParserDesc** data);
+int SyntaxPrefixGenerateCode(SyntaxNode* node, ParserDesc** data);
 
 #endif

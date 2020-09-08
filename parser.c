@@ -442,11 +442,7 @@ SyntaxNode* ParseLogicalOr(TokenDesc** desc, ParserError* error)
     SyntaxNode* rexpr = NULL;
 
     if (!(lexpr = ParseLogicalAnd(&temp, error)))
-    {
-        error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
-        error = error->next;
         goto ErrorHandle;
-    }
 
     while (temp->value == OR)
     {
@@ -456,9 +452,11 @@ SyntaxNode* ParseLogicalOr(TokenDesc** desc, ParserError* error)
             error = error->next;
             goto ErrorHandle;
         }
-        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxBinaryOperatorGenerateCode, NULL);
+        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxLogicalOrGenerateCode, NULL);
     }
 
+    *desc = temp;
+    return lexpr;
 ErrorHandle:
     DeleteSyntaxNode(lexpr);
     DeleteSyntaxNode(rexpr);
@@ -472,18 +470,58 @@ SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ParserError* error)
     SyntaxNode* rexpr = NULL;
 
     if (!(lexpr = ParseCompare(&temp, error)))
-    {
-        error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
-        error = error->next;
         goto ErrorHandle;
-    }
 
     while (temp->value == AND)
     {
-
+        if (!(rexpr = ParseCompare(&temp, error)))
+        {
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+            error = error->next;
+            goto ErrorHandle;
+        }
+        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxLogicalAndGenerateCode, NULL);
     }
-
+    
+    *desc = temp;
+    return lexpr;
 ErrorHandle:
     DeleteSyntaxNode(lexpr);
     DeleteSyntaxNode(rexpr);
+    return NULL;
+}
+
+SyntaxNode* ParserCompare(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* lexpr = NULL;
+    SyntaxNode* rexpr = NULL;
+
+    if (!(lexpr = ParseAdd(&temp, error)))
+        goto ErrorHandle;
+    
+    switch ((**desc).value)
+    {
+        case EQ:
+        case NEQ:
+        case GT:
+        case GE:
+        case LT:
+        case LE:
+        if (!(rexpr = ParseAdd(&temp, error)))
+        {
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+            error = error->next;
+            goto ErrorHandle;
+        }
+        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxCompareGenerateCode, (**desc).value);
+        break;
+    }
+
+    *desc = temp;
+    return lexpr;
+ErrorHandle:
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
+    return NULL;
 }
