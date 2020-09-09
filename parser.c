@@ -14,10 +14,6 @@ struct Token
 } tokens[] = {TOKEN(T){EOT}};
 #undef T
 
-SyntaxNode* ParseExpr(TokenDesc* desc, ParserError* error);
-SyntaxNode* ParseAssign(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ParserError* error);
-
 TokenDesc* CreateTokenDesc(short value, size_t lines, void* literal)
 {
     TokenDesc* temp = (TokenDesc*)malloc(sizeof(TokenDesc));
@@ -508,14 +504,151 @@ SyntaxNode* ParserCompare(TokenDesc** desc, ParserError* error)
         case GE:
         case LT:
         case LE:
-        if (!(rexpr = ParseAdd(&temp, error)))
+            if (!(rexpr = ParseAdd(&temp, error)))
+            {
+                error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+                error = error->next;
+                goto ErrorHandle;
+            }
+            lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxCompareGenerateCode, (**desc).value);
+            break;
+    }
+
+    *desc = temp;
+    return lexpr;
+ErrorHandle:
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
+    return NULL;
+}
+
+SyntaxNode* ParserAdd(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* lexpr = NULL;
+    SyntaxNode* rexpr = NULL;
+
+    if(!(lexpr = ParseMul(&temp, error)))
+        return NULL;
+
+    while(temp->value == ADD || temp->value == SUB)
+    {
+        short value = temp->value;
+        if(!(rexpr = ParseMul(&temp, error)))
         {
             error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
             error = error->next;
             goto ErrorHandle;
         }
-        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxCompareGenerateCode, (**desc).value);
-        break;
+        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxAddGenerateCode, value);
+    }
+
+    *desc = temp;
+    return lexpr;
+ErrorHandle:
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
+    return NULL;
+}
+
+SyntaxNode* ParserMul(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* lexpr = NULL;
+    SyntaxNode* rexpr = NULL;
+
+    if(!(lexpr = ParsePrefix(&temp, error)))
+        return NULL;
+
+    while(temp->value == MUL || temp->value == DIV)
+    {
+        short value = temp->value;
+        if(!(rexpr = ParsePrefix(&temp, error)))
+        {
+            error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+            error = error->next;
+            goto ErrorHandle;
+        }
+        lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxAddGenerateCode, value);   
+    }
+
+    *desc = temp;
+    return lexpr;
+ErrorHandle:
+    DeleteSyntaxNode(lexpr);
+    DeleteSyntaxNode(rexpr);
+    return NULL;
+}
+
+SyntaxNode* ParsePrefix(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* expr = NULL;
+
+    switch((**desc).value)
+    {
+        case INC:
+        case DEC:
+        case ADD:
+        case SUB:
+        case NOT:
+        case NEW:
+            if(!(expr = ParsePostfix(&temp, error)))
+            {
+                error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+                error = error->next;
+                goto ErrorHandle;
+            }
+            expr = CreateSyntaxNode(NULL, NULL, expr, SyntaxPrefixGenerateCode, (**desc).value);
+            break;
+        default:
+            return ParsePostfix(desc, error);
+    }
+
+    *desc = temp;
+    return expr;
+ErrorHandle:
+    DeleteSyntaxNode(expr);
+    return NULL;
+}
+
+SyntaxNode* ParsePostfix(TokenDesc** desc, ParserError* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* lexpr = NULL;
+    SyntaxNode* rexpr = NULL;
+
+    if(!(lexpr = ParseElement(&temp, error)))
+        return NULL;
+
+    switch(temp->value)
+    {
+        case INC:
+        case DEC:
+            lexpr = CreateSyntaxNode(lexpr, NULL, NULL, SyntaxPostfixGenerateCode, temp->value);
+            break;
+        case PERIOD:
+            if(!(rexpr = ParseElement(&temp, error)))
+            {
+                error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+                error = error->next;
+                goto ErrorHandle;
+            }
+            lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, NULL, NULL);
+            break;
+        case LBRACKET:
+            if(!(rexpr = ParseElement(&temp, error)))
+            {
+                error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
+                error = error->next;
+                goto ErrorHandle;
+            }
+            if(temp->value != RBRACKET)
+            {
+                error->next = CreateParserError("Expected ]", temp->lines);
+                error = error->next;
+                goto ErrorHandle;
+            }
     }
 
     *desc = temp;

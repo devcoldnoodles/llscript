@@ -53,6 +53,7 @@
 	_ELEM_(CONDITIONAL, "?", 3)       	\
 	/* keywords */          			\
 	_ELEM_(META, "meta", 0)				\
+	_ELEM_(NEW, "new", 0)				\
 	_ELEM_(BYTE, "byte", 0)           	\
 	_ELEM_(IF, "if", 0)               	\
 	_ELEM_(ELSE, "else", 0)           	\
