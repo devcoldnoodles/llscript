@@ -327,14 +327,6 @@ SyntaxNode* CreateSyntaxNode(SyntaxNode* lexpr, SyntaxNode* rexpr, SyntaxNode* e
     return temp;
 }
 
-ParserError* CreateParserError(const char* msg, size_t lines)
-{
-    ParserError* temp = (ParserError*)malloc(sizeof(ParserError));
-    temp->msg = msg;
-    temp->lines = lines;
-    return temp;
-}
-
 void DeleteSyntaxNode(SyntaxNode* node)
 {
     if (!node)   return;
@@ -344,12 +336,12 @@ void DeleteSyntaxNode(SyntaxNode* node)
     free(node);
 }
 
-SyntaxNode* ParseExpr(TokenDesc* desc, ParserError* error)
+SyntaxNode* ParseExpr(TokenDesc* desc, ErrorDesc* error)
 {
     return ParseAssign(desc, error);
 }
 
-SyntaxNode* ParseAssign(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParseAssign(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -388,7 +380,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -431,7 +423,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParseLogicalOr(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParseLogicalOr(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -459,7 +451,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -487,7 +479,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParserCompare(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParserCompare(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -522,7 +514,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParserAdd(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParserAdd(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -551,7 +543,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParserMul(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParserMul(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -580,7 +572,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParsePrefix(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParsePrefix(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* expr = NULL;
@@ -612,7 +604,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParsePostfix(TokenDesc** desc, ParserError* error)
+SyntaxNode* ParsePostfix(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -628,16 +620,16 @@ SyntaxNode* ParsePostfix(TokenDesc** desc, ParserError* error)
             lexpr = CreateSyntaxNode(lexpr, NULL, NULL, SyntaxPostfixGenerateCode, temp->value);
             break;
         case PERIOD:
-            if(!(rexpr = ParseElement(&temp, error)))
+            if(!(rexpr = ParseElement(&temp->next, error)))
             {
                 error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
                 error = error->next;
                 goto ErrorHandle;
             }
-            lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, NULL, NULL);
+            lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxPostfixGenerateCode, temp->value);
             break;
         case LBRACKET:
-            if(!(rexpr = ParseElement(&temp, error)))
+            if(!(rexpr = ParseAssign(&temp, error)))
             {
                 error->next = CreateParserError(_ERROR_EXPECTED_EXPRESSION, temp->lines);
                 error = error->next;
@@ -649,6 +641,11 @@ SyntaxNode* ParsePostfix(TokenDesc** desc, ParserError* error)
                 error = error->next;
                 goto ErrorHandle;
             }
+            lexpr = CreateSyntaxNode(lexpr, rexpr, NULL, SyntaxPostfixGenerateCode, temp->value);
+            break;
+        case LPAREN:
+            
+            break;
     }
 
     *desc = temp;
@@ -657,4 +654,22 @@ ErrorHandle:
     DeleteSyntaxNode(lexpr);
     DeleteSyntaxNode(rexpr);
     return NULL;
+}
+
+SyntaxNode* ParseElement(TokenDesc** desc, ErrorDesc* error)
+{
+    TokenDesc* temp = *desc;
+    SyntaxNode* expr = NULL;
+
+    switch(temp->value)
+    {
+    case LPAREN:
+        if (!(expr = ParseExpr(temp->next, error)))
+        break;
+    }
+
+    *desc = temp;
+    return expr;
+ErrorHandle:
+    DeleteSyntaxNode(expr);
 }

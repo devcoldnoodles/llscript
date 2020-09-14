@@ -1,12 +1,6 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
-
-typedef struct ParserError
-{
-    const char*         msg;
-    size_t              lines;
-    struct ParserError* next;
-} ParserError;
+#include "error.h"
 
 typedef struct ParserDesc
 {
@@ -37,16 +31,17 @@ int SyntaxAddGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxMulGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxPrefixGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxPostfixGenerateCode(SyntaxNode* node, ParserDesc** data);
+int SyntaxFunctionCallGenerateCode(SyntaxNode* node, ParserDesc** data);
 
-SyntaxNode* ParseExpr(TokenDesc* desc, ParserError* error);
-SyntaxNode* ParseAssign(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParseLogicalOr(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParseCompare(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParserAdd(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParserMul(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParsePrefix(TokenDesc** desc, ParserError* error);
-SyntaxNode* ParsePostfix(TokenDesc** desc, ParserError* error);
+SyntaxNode* ParseExpr(TokenDesc* desc, ErrorDesc* error);
+SyntaxNode* ParseAssign(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseLogicalOr(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseCompare(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParserAdd(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParserMul(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParsePrefix(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParsePostfix(TokenDesc** desc, ErrorDesc* error);
 
 #endif
