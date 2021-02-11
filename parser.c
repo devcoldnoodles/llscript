@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "token.h"
 
-#define _ERROR_EXPECTED_EXPRESSION "Expected expression"
+
 
 struct Token
 {
