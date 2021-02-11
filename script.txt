@@ -9,7 +9,7 @@ print("\nusing time = ", clock() - begin);
 /*
 import stdlib
 import stdio
-meta(expression) 
+meta(expression)
 { 
 	contents
 }

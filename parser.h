@@ -43,5 +43,6 @@ SyntaxNode* ParserAdd(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParserMul(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParsePrefix(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParsePostfix(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseElement(TokenDesc** desc, ErrorDesc* error);
 
 #endif
