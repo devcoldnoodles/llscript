@@ -476,7 +476,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParserCompare(TokenDesc** desc, ErrorDesc* error)
+SyntaxNode* ParseCompare(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -511,7 +511,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParserAdd(TokenDesc** desc, ErrorDesc* error)
+SyntaxNode* ParseAdd(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
@@ -540,7 +540,7 @@ ErrorHandle:
     return NULL;
 }
 
-SyntaxNode* ParserMul(TokenDesc** desc, ErrorDesc* error)
+SyntaxNode* ParseMul(TokenDesc** desc, ErrorDesc* error)
 {
     TokenDesc* temp = *desc;
     SyntaxNode* lexpr = NULL;
