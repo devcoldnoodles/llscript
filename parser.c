@@ -1,7 +1,4 @@
 #include "parser.h"
-#include "token.h"
-
-
 
 struct Token
 {
@@ -137,7 +134,7 @@ TokenDesc* Scan(const char* src)
 			desc->next = CreateTokenDesc(LITERAL_STRING, lines, NULL);
 			desc = desc->next;
 			desc->literal.s = (char*)malloc(pos + 1);
-            mempcpy(desc->literal.s, temp, pos);
+            memcpy(desc->literal.s, temp, pos);
 			desc->literal.s[pos] = 0;
         }
         break;
@@ -300,7 +297,7 @@ TokenDesc* Scan(const char* src)
                 desc = desc->next;
                 desc->value = IDENTIFIER;
                 desc->literal.s = (char*)malloc(src - temp + 1);
-                mempcpy(desc->literal.s, temp, src - temp);
+                memcpy(desc->literal.s, temp, src - temp);
 				desc->literal.s[src - temp] = 0;
                 for(int seq = META; seq <= NAMESPACE; ++seq)
                     if (!strcmp(desc->literal.s, tokens[seq].str))

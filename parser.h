@@ -1,5 +1,6 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
+#include "token.h"
 #include "error.h"
 
 typedef struct ParserDesc
@@ -20,6 +21,7 @@ typedef struct SyntaxNode
     void*               data;
 } SyntaxNode;
 
+TokenDesc* Scan(const char* src);
 int SyntaxAssignGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxUnaryOperatorGenerateCode(SyntaxNode* node, ParserDesc** data);
 int SyntaxBinaryOperatorGenerateCode(SyntaxNode* node, ParserDesc** data);
@@ -39,8 +41,8 @@ SyntaxNode* ParseTernaryOperator(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParseLogicalOr(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParseLogicalAnd(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParseCompare(TokenDesc** desc, ErrorDesc* error);
-SyntaxNode* ParserAdd(TokenDesc** desc, ErrorDesc* error);
-SyntaxNode* ParserMul(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseAdd(TokenDesc** desc, ErrorDesc* error);
+SyntaxNode* ParseMul(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParsePrefix(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParsePostfix(TokenDesc** desc, ErrorDesc* error);
 SyntaxNode* ParseElement(TokenDesc** desc, ErrorDesc* error);
